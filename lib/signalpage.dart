@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'xsignal.dart';
-import 'package:charts_flutter/flutter.dart'
+import 'package:charts_flutter/flutter.dart';
 
 class SignalPage extends StatelessWidget{
 
