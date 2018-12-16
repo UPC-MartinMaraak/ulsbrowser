@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'ulsreader.dart' as UlsReader;
+import 'xsignal.dart';
+import 'signalpage.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MaterialApp(
+      title: "X-Connect config browser",
+      home: SignalsPage()
 
-class MyApp extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    Icon _searchIcon = new Icon(Icons.search);
-    String _searchText = "";
-
-    return MaterialApp(
-      title: 'X-Connect',
-      home: new SignalsPage(),
-    );
-  }
+  ));
 }
+
 
 class SignalsPage extends StatefulWidget{
 
@@ -28,14 +23,15 @@ class SignalsPage extends StatefulWidget{
 class _SignalsPageState extends State<SignalsPage> {
 
   final TextEditingController _filter = new TextEditingController();
-
-  List signalList = new List();
-  List filteredList = new List();
+  List<XSignal> signalList = new List();
+  List<XSignal> filteredList = new List();
   Icon _searchIcon = new Icon(Icons.search);
   String _searchText = "";
   Widget appBarText = new Text("X-Connect signals");
 
   _SignalsPageState() {
+    _getSignalList();
+
     _filter.addListener((){
       if(_filter.text.isEmpty){
         setState(() {
@@ -50,7 +46,6 @@ class _SignalsPageState extends State<SignalsPage> {
 
 
     });
-
 
   }
 
@@ -77,7 +72,6 @@ class _SignalsPageState extends State<SignalsPage> {
   }
 
   Widget _buildList(){
-
     if( !(_searchText.isEmpty)){
       List tempList = new List();
       for (int i=0;i<signalList.length;i++){
@@ -91,17 +85,26 @@ class _SignalsPageState extends State<SignalsPage> {
     return ListView.builder(
         itemCount: filteredList.length,
         itemBuilder: (BuildContext context,int i){
-          String txt = filteredList[i];
-          if(txt == null){
-            txt = "n/a";
-          }
+          String txt = filteredList[i].tag +" - " + filteredList[i].description;
+
           return new ListTile(
             title: Text(txt + " Signal " +i.toString()),
+            onTap: () {_listTapped(filteredList[i]);},
           );
         });
   }
 
+  _listTapped(XSignal signal){
+    print(signal.description + " tapped");
+    if(signal != null) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SignalPage(signal)));
+    }
+  }
+
   void _searchPressed(){
+    print("search pressed");
     setState(() {
       if(this._searchIcon.icon == Icons.search){
         this._searchIcon = new Icon(Icons.close);
@@ -122,14 +125,7 @@ class _SignalsPageState extends State<SignalsPage> {
 
   }
 
-  @override
-  void initState() {
-    _getSignalList();
-    super.initState();
-  }
-
   void _getSignalList() async {
-
     signalList = UlsReader.UlsReader.getSignalList();
     filteredList = signalList;
 
